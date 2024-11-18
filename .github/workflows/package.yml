@@ -9,20 +9,24 @@ on:
     paths-ignore:
       - '.github/**'
 
+env:
+  CF_API_KEY: ${{ secrets.CF_API_KEY }}
+  WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+  WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+  # for github releases, this secret is automatically provided to the workflow
+  # this must be explicitly configured with read-write permissions on the repository
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-
+  release: # "release" is a job, you can name it anything you want
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout addon
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # reads history for commit changelog
 
-      - name: Package
-        uses: BigWigsMods/packager@master
-        env:
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
-          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
-          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - uses: BigWigsMods/packager@v2
+        # automatically generates game type specific TOC files
+        with:
+          args: -S
+
